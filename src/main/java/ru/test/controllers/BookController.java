@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.test.entity.Book;
 import ru.test.entity.Person;
+import ru.test.exceptions.NoSuchBookException;
 import ru.test.service.BookService;
 import ru.test.service.PersonService;
 
@@ -102,5 +103,11 @@ public class BookController {
     public String deleteBook(@PathVariable("id") int id){
         bookService.delete(id);
         return "redirect:/books";
+    }
+
+
+    @ExceptionHandler(NoSuchBookException.class)
+    public String noBookHandler(){
+        return "book/nobook";
     }
 }

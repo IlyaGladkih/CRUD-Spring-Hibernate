@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.test.entity.Book;
 import ru.test.entity.Person;
+import ru.test.exceptions.NoSuchBookException;
+import ru.test.exceptions.NoSuchPersonException;
 import ru.test.repository.BookRepository;
 import ru.test.repository.PersonRepository;
 
@@ -35,8 +37,16 @@ public class BookService {
 
     public List<Book> getAllBook(Optional<String> page, Optional<String> bookPerPage, boolean sort){
         int p = 0,bPP = 0;
-        p = Integer.parseInt(page.get());
-        bPP = Integer.parseInt(bookPerPage.get());
+        try {
+            p = Integer.parseInt(page.get());
+        }catch (Exception e){
+            p = 0;
+        }
+        try {
+            bPP = Integer.parseInt(bookPerPage.get());
+        }catch (Exception e){
+            bPP = 0;
+        }
         if (sort) return bookRepository.findAll(PageRequest.of(p,bPP,Sort.by("yearOfPublication"))).getContent();
         else return bookRepository.findAll(PageRequest.of(p,bPP)).getContent();
     }
@@ -47,7 +57,7 @@ public class BookService {
     }
 
     public Book getById(int id){
-        return bookRepository.findById(id).orElse(null);
+        return bookRepository.findById(id).orElseThrow(NoSuchBookException::new);
     }
 
     @Transactional
@@ -56,7 +66,7 @@ public class BookService {
     }
     @Transactional
     public void update(Book book,int id){
-        Book book1 = bookRepository.findById(id).orElse(null);
+        Book book1 = bookRepository.findById(id).orElseThrow(NoSuchBookException::new);
         book1.setBookName(book.getBookName());
         book1.setAuthor(book.getAuthor());
         book1.setYearOfPublication(book.getYearOfPublication());
@@ -69,8 +79,8 @@ public class BookService {
     }
     @Transactional
     public void pushBook(Person person,int id){
-        Book book = bookRepository.findById(id).orElse(null);
-        Person person1 = personRepository.findById(person.getPerson_id()).orElse(null);
+        Book book = bookRepository.findById(id).orElseThrow(NoSuchBookException::new);
+        Person person1 = personRepository.findById(person.getPerson_id()).orElseThrow(NoSuchPersonException::new);
         book.setDateOfTaken(new Date());
         book.setPersonId(person1);
         person1.addBook(book);
@@ -78,7 +88,7 @@ public class BookService {
 
     @Transactional
     public void release(int id){
-        Book book = bookRepository.findById(id).orElse(null);
+        Book book = bookRepository.findById(id).orElseThrow(NoSuchBookException::new);
         book.setPersonId(null);
         book.setDateOfTaken(null);
     }

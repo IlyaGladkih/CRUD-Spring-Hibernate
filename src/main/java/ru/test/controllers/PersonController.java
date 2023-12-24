@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.test.entity.Person;
+import ru.test.exceptions.NoSuchPersonException;
 import ru.test.service.PersonService;
 
 @Controller
@@ -58,6 +59,11 @@ public class PersonController {
     public String deleteBook(@PathVariable("id") int id){
         personService.delete(id);
         return "redirect:/persons";
+    }
+
+    @ExceptionHandler(NoSuchPersonException.class)
+    public String noPersonHandler(){
+        return "person/noperson";
     }
 
 

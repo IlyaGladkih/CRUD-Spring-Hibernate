@@ -1,9 +1,11 @@
 package ru.test.service;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.test.entity.Person;
+import ru.test.exceptions.NoSuchPersonException;
 import ru.test.repository.PersonRepository;
 
 import java.util.List;
@@ -24,7 +26,9 @@ public class PersonService {
     }
 
     public Person getById(int id){
-        return personRepository.findById(id).orElse(null);
+        Person person = personRepository.findById(id).orElseThrow(NoSuchPersonException::new);
+        Hibernate.initialize(person.getBookId());
+        return person;
     }
 
     @Transactional
@@ -33,7 +37,7 @@ public class PersonService {
     }
 
     public void update(Person person,int id){
-        Person updatedPerson = personRepository.findById(id).orElse(null);
+        Person updatedPerson = personRepository.findById(id).orElseThrow(NoSuchPersonException::new);
         updatedPerson.setFio(person.getFio());
         updatedPerson.setBirthday(person.getBirthday());
     }
